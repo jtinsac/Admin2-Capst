@@ -62,7 +62,7 @@ function Window1() {
           const queueRef = ref(db, `queues/${firstEntryKey}`);
           const startTime = new Date().toISOString(); // Using ISO format for StartTime
 
-          update(queueRef, { Status: "Processing", StartTime: startTime })
+          update(queueRef, { Status: "Processing", StartTime: startTime, Window_Received: "Window2" })
             .then(() => {
               setCurrentQueue(data[firstEntryKey]);
             })

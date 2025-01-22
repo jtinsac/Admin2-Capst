@@ -2,6 +2,10 @@ import { Chart as ChartJS, defaults } from "chart.js/auto"
 import Sidebar from "../components/sidebar"
 import { Bar } from "react-chartjs-2"
 import sourceData from "../sourceData.json"
+import React, { useEffect, useState } from "react";
+import { database } from '../firebase.config';
+import { ref, get, child } from "firebase/database";
+
 import {
   createColumnHelper,
   flexRender,
@@ -21,7 +25,6 @@ import {
   Search,
   User,
 } from "lucide-react";
-import React from "react";
 import tableData from "../tableData.json"
 
 
@@ -74,11 +77,49 @@ defaults.plugins.title.font.size = 20;
 defaults.plugins.title.color = "black";
 
 
-function Dashboard(){
+function Dashboard2(){
+
+  const today = new Date().toLocaleDateString('en-PH', {
+    weekday: 'short',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+
+  const [visitorCount, setVisitorCount] = React.useState("--");
+  const [monthlyVisitorCount, setMonthlyVisitorCount] = React.useState("--");
 
   const [data] = React.useState(() => [...tableData]);
   const [sorting, setSorting] = React.useState([]);
   const [globalFilter, setGlobalFilter] = React.useState("");
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Fetch daily_queue_number_counter
+        const dailyRef = ref(database, "daily_queue_number_counter");
+        const dailySnapshot = await get(dailyRef);
+        if (dailySnapshot.exists()) {
+          setVisitorCount(dailySnapshot.val());
+        } else {
+          console.error("No daily data available");
+        }
+
+        // Fetch monthly_queue_number_counter
+        const monthlyRef = ref(database, "monthly_queue_number_counter");
+        const monthlySnapshot = await get(monthlyRef);
+        if (monthlySnapshot.exists()) {
+          setMonthlyVisitorCount(monthlySnapshot.val());
+        } else {
+          console.error("No monthly data available");
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const table = useReactTable({
     data,
@@ -110,8 +151,8 @@ function Dashboard(){
      <Sidebar/>
      <div className="d-container">
       <div className="d-heading">
-         <h4>Welcome, Admin Window 1!</h4>
-         <h5 className="dash-date">Mon, December 9, 2024</h5>
+         <h4>Welcome, Admin Window 2!</h4>
+         <h5 className="dash-date">{today}</h5>
             <hr className="line"/>
       </div>
      <div className="d-content">
@@ -120,12 +161,12 @@ function Dashboard(){
       <div className="visit-card">
          <h3 className="visit-header">Visitors Today</h3>
          <button className="div">--</button>
-         <h1 className="visitor-count">20</h1>
+         <h1 className="visitor-count">{visitorCount}</h1>
        </div>
 
        <div className="visit-card">
          <h3 className="visit-header">This Month</h3>
-         <h1 className="mos-visitor">139</h1>
+         <h1 className="mos-visitor">{monthlyVisitorCount}</h1>
       </div>
       </div>
       
@@ -290,4 +331,4 @@ function Dashboard(){
     )
 }
 
-export default Dashboard
+export default Dashboard2

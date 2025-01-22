@@ -8,7 +8,7 @@ function Wins(){
  
      <div className="cont">
         <div className="header">
-          <div className="head-logo">SmartQueues-Admin</div>
+          <div className="head-logo">SmartQueues-Admin2222</div>
           <div className="head-win">Finance Window</div>
         </div>
 
