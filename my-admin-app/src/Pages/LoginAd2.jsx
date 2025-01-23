@@ -44,7 +44,7 @@ function LogAdmin2() {
             window: selectedWindow || 'Unknown', // Use the selected window or default to "Unknown"
           });
 
-          navigate('/dashboard1');
+          navigate('/dashboard2');
         } else {
           alert('Invalid credentials. Please try again.');
         }

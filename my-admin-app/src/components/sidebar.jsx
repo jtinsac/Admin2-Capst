@@ -36,13 +36,13 @@ return(
          <div className='dashi'>
           <h3 className='winn-header'>MAIN MENU</h3>
 
-          <CustomLink className='sidebar-link' href ="/" >
+          <CustomLink className='sidebar-link' href ="/dashboard2" >
           <FontAwesomeIcon icon={faHome} className='home-icon' />
           <span className='dash'>Dashboard</span></CustomLink> 
 
          </div>
 
-        <CustomLink className='sidebar-link' href ="/users" >
+        <CustomLink className='sidebar-link' href ="/users2" >
         <FontAwesomeIcon icon={faUser} className='user-icon' />
         <span className='dash'> Users </span></CustomLink>
 
