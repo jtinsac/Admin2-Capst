@@ -1,8 +1,7 @@
-import Sidebar from "../components/sidebar";
+import SidebarAd2 from "../components/sidebarAd2";
 import React, { useState, useEffect } from "react";
-import { initializeApp } from "firebase/app";
+import { database } from "../firebase.config"; // Import from firebaseconfig.js
 import {
-  getDatabase,
   ref,
   query,
   orderByChild,
@@ -13,33 +12,45 @@ import {
   push,
   remove,
 } from "firebase/database";
+import '../components/windowAd2.css'
 
-function Window1() {
-  // Firebase configuration
-  const firebaseConfig = {
-    apiKey: "AIzaSyC1-rPcvqin2WWSAA96N5Gp2L1538PCuJ8",
-    authDomain: "easyq-s.firebaseapp.com",
-    databaseURL: "https://easyq-s-default-rtdb.firebaseio.com",
-    projectId: "easyq-s",
-    storageBucket: "easyq-s.firebasestorage.app",
-    messagingSenderId: "485410986210",
-    appId: "1:485410986210:web:aa2dab9b4e00917212a6bb",
-    measurementId: "G-VC0BZM9ERT",
-  };
-
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
+function Window2() {
+  const db = database; // Use imported database instance
 
   // State management
   const [currentQueue, setCurrentQueue] = useState(null);
   const [currentQueueId, setCurrentQueueId] = useState(null);
+  const [window2Status, setWindow2Status] = useState("Active");
+
+  useEffect(() => {
+    const handleBeforeUnload = (event) => {
+      event.preventDefault();
+      event.returnValue = ""; // This triggers the browser's confirmation dialog.
+    };
+
+    // Add the event listener
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    // Cleanup on unmount
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, []);
 
   // Fetch the next queue when component mounts
   useEffect(() => {
     fetchNextQueue();
-    console.log("rendering")
+    fetchWindowStatus();
   }, []);
+
+  // Utility function to get a formatted date and time
+  const getReadableDateTime = () => {
+    const now = new Date();
+    const options = { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: true };
+    const formattedDate = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}`;
+    const formattedTime = now.toLocaleTimeString("en-US", options);
+    return `${formattedDate} ${formattedTime}`;
+  };
 
   // Fetch next queue
   const fetchNextQueue = () => {
@@ -60,12 +71,14 @@ function Window1() {
           setCurrentQueueId(firstEntryKey);
 
           const queueRef = ref(db, `queues/${firstEntryKey}`);
-          const startTime = new Date().toISOString(); // Using ISO format for StartTime
+          const startTime = new Date().toISOString();
 
-          update(queueRef, { Status: "Processing", StartTime: startTime, Window_Received: "Window2" })
-            .then(() => {
-              setCurrentQueue(data[firstEntryKey]);
-            })
+          update(queueRef, {
+            Status: "Processing",
+            StartTime: startTime,
+            Window_Received: "Window2",
+          })
+            .then(() => setCurrentQueue(data[firstEntryKey]))
             .catch((error) => {
               console.error("Error updating queue status:", error);
             });
@@ -79,26 +92,21 @@ function Window1() {
 
   // Complete current queue
   const completeCurrentQueue = () => {
-    if (currentQueueId && confirm("Are you sure you want to proceed to the next queue?")) {
+    if (!currentQueueId) return;
+
+    if (confirm("Are you sure you want to proceed to the next queue?")) {
       const currentQueueRef = ref(db, `queues/${currentQueueId}`);
+
       onValue(
         currentQueueRef,
         (snapshot) => {
           if (snapshot.exists()) {
             const currentData = snapshot.val();
-            const endTime = new Date().toISOString(); // Using ISO format for CompletedTime
-            const startTimeMillis = Date.parse(currentData.StartTime); // Parse StartTime as timestamp
-            const endTimeMillis = Date.now(); // Current time in milliseconds
-            const processingTimeMillis = endTimeMillis - startTimeMillis;
-
-            // Debugging logs
-            console.log("StartTime:", currentData.StartTime);
-            console.log("Parsed StartTime (ms):", startTimeMillis);
-            console.log("EndTime:", endTime);
-            console.log("Processing Time (ms):", processingTimeMillis);
+            const readableEndTime = getReadableDateTime();
+            const startTimeMillis = Date.parse(currentData.StartTime);
+            const processingTimeMillis = Date.now() - startTimeMillis;
 
             if (isNaN(startTimeMillis) || isNaN(processingTimeMillis)) {
-              console.error("Invalid time data for processing time calculation.");
               alert("Cannot calculate processing time. StartTime is missing or invalid.");
               return;
             }
@@ -108,12 +116,10 @@ function Window1() {
             push(ref(db, "CompletedQueues"), {
               ...currentData,
               Status: "Completed",
-              CompletedTime: endTime,
+              Date_and_Time_Completed: readableEndTime, // Formatted date and time
               ProcessingTime: readableProcessingTime,
             }).then(() => {
-              remove(ref(db, `queues/${currentQueueId}`)).then(() => {
-                fetchNextQueue();
-              });
+              remove(currentQueueRef).then(fetchNextQueue);
             });
           }
         },
@@ -124,36 +130,36 @@ function Window1() {
 
   // Cancel current queue
   const cancelCurrentQueue = () => {
-    if (currentQueueId && confirm("Are you sure you want to cancel this queue?")) {
+    if (!currentQueueId) return;
+
+    if (confirm("Are you sure you want to cancel this queue?")) {
       const reason = prompt("Please enter the reason for cancellation:");
       if (reason) {
         const currentQueueRef = ref(db, `queues/${currentQueueId}`);
-        const endTime = new Date().toISOString(); // Using ISO format for CompletedTime
-  
+        const readableEndTime = getReadableDateTime();
+
         onValue(
           currentQueueRef,
           (snapshot) => {
             if (snapshot.exists()) {
               const currentData = snapshot.val();
-              const startTimeMillis = Date.parse(currentData.StartTime); // Parse StartTime as timestamp
-              const endTimeMillis = Date.now(); // Current time in milliseconds
-              const processingTimeMillis = endTimeMillis - startTimeMillis;
-  
-              let readableProcessingTime = "N/A"; // Default value
-              if (!isNaN(startTimeMillis) && !isNaN(processingTimeMillis)) {
-                readableProcessingTime = formatProcessingTime(processingTimeMillis);
-              }
-  
+              const startTimeMillis = Date.parse(currentData.StartTime);
+              const processingTimeMillis = Date.now() - startTimeMillis;
+
+              const readableProcessingTime = !isNaN(processingTimeMillis)
+                ? formatProcessingTime(processingTimeMillis)
+                : "N/A";
+
               push(ref(db, "CompletedQueues"), {
                 ...currentData,
                 Status: "Cancelled",
                 CancelReason: reason,
-                CompletedTime: endTime,
-                ProcessingTime: readableProcessingTime, // Record calculated processing time
+                CompletedTime: readableEndTime, // Formatted date and time
+                ProcessingTime: readableProcessingTime,
               }).then(() => {
-                remove(ref(db, `queues/${currentQueueId}`)).then(() => {
-                  setCurrentQueue(null); // Clear the current queue
-                  fetchNextQueue(); // Fetch the next queue
+                remove(currentQueueRef).then(() => {
+                  setCurrentQueue(null);
+                  fetchNextQueue();
                 });
               });
             }
@@ -165,7 +171,6 @@ function Window1() {
       }
     }
   };
-  
 
   // Format processing time
   const formatProcessingTime = (milliseconds) => {
@@ -173,34 +178,89 @@ function Window1() {
     const minutes = Math.floor((milliseconds / (1000 * 60)) % 60);
     const hours = Math.floor((milliseconds / (1000 * 60 * 60)) % 24);
 
-    const formattedTime = [];
-    if (hours > 0) formattedTime.push(`${hours} hours`);
-    if (minutes > 0) formattedTime.push(`${minutes} minutes`);
-    formattedTime.push(`${seconds} seconds`);
+    return `${hours > 0 ? `${hours} hours, ` : ""}${minutes > 0 ? `${minutes} minutes, ` : ""}${seconds} seconds`;
+  };
 
-    return formattedTime.join(", ");
+  // Fetch Window2 status
+  const fetchWindowStatus = () => {
+    const window2Ref = ref(db, "QueueSystemStatus/Window2/Status");
+    onValue(window2Ref, (snapshot) => {
+      setWindow2Status(snapshot.val());
+    });
+  };
+
+  // Toggle Window2 status
+  const handleToggleStatus = () => {
+    const isDisabling = window2Status === "Active";
+    const confirmMessage = isDisabling
+      ? "Are you sure you want to disable Window 2?"
+      : "Do you want to enable Window 2?";
+
+    if (confirm(confirmMessage)) {
+      const window2Ref = ref(db, "QueueSystemStatus/Window2");
+      const newStatus = isDisabling ? "Inactive" : "Active";
+
+      update(window2Ref, { Status: newStatus })
+        .then(() => {
+          alert(`Window 2 has been ${newStatus === "Inactive" ? "disabled" : "enabled"}.`);
+        })
+        .catch((error) => {
+          console.error("Error updating status:", error);
+          alert("Failed to update Window 2 status. Please try again.");
+        });
+    }
   };
 
   return (
     <>
-      <Sidebar />
-      <div className="win-container">
-        <div className="card">
-          <h2 className="win-heading">FINANCE WINDOW 1</h2>
-          <div className="user-container">
-            <div className="user-info">
-              <h3 className="uid">User ID: {currentQueue?.UserID || "N/A"}</h3>
-              <h3 className="name">Name: {currentQueue?.Name || "N/A"}</h3>
-              <h3 className="email">Email: {currentQueue?.Email || "N/A"}</h3>
-              <h3 className="contact">Contact No: {currentQueue?.ContactNumber || "N/A"}</h3>
-              <h3 className="purpose">Purpose: {currentQueue?.Queue_Purpose || "N/A"}</h3>
+      <SidebarAd2 />
+      <div className="win1-container">
+        <div className="win-headz">
+          <h2 className="win-title">FINANCE WINDOW 2</h2>
+          <button className="disable" onClick={handleToggleStatus}>
+            {window2Status === "Active" ? "Disable" : "Enable"}
+          </button>
+        </div>
+
+        <div className="user-container">
+          <div className="userInfo-card">
+            <div className="user-Info">
+              <h3 className="uid">User ID:</h3>
+              <span className="userInfo-value">{currentQueue?.UserID || "N/A"}</span>
+            </div>
+            <div className="user-Info">
+              <h3 className="uid">Name:</h3>
+              <span className="userInfo-value">{currentQueue?.Name || "N/A"}</span>
+            </div>
+            <div className="user-Info">
+              <h3 className="uid">Email:</h3>
+              <span className="userInfo-value">{currentQueue?.Email || "N/A"}</span>
+            </div>
+            <div className="user-Info">
+              <h3 className="uid">Contact:</h3>
+              <span className="userInfo-value">{currentQueue?.ContactNumber || "N/A"}</span>
+            </div>
+            <div className="user-Info">
+              <h3 className="uid">Purpose:</h3>
+              <span className="userInfo-value">{currentQueue?.Queue_Purpose || "N/A"}</span>
+            </div>
+            <div className="user-Info">
+              <h3 className="uid">Completed Time:</h3>
+              <span className="userInfo-value">
+                {currentQueue?.CompletedTime ? currentQueue.CompletedTime : "N/A"}
+              </span>
+              
             </div>
           </div>
-          <div className="queue-container">
-            <h2 className="now-serving">Current Queue:</h2>
-             <h2 className="q-num">  {currentQueue?.Queue_Number || "N/A"}</h2>
+        </div>
+        <div className="queue-container">
+          <div className="q-wrapper">
+            <div className="queue-card">
+              <h2 className="current-queue">Current Queue:</h2>
+              <h2 className="q-num">{currentQueue?.Queue_Number || "N/A"}</h2>
+            </div>
           </div>
-          <div className="button-cont">
+          <div className="qBtn-container">
             <button className="cancel" onClick={cancelCurrentQueue}>Cancel</button>
             <button className="recall">Recall</button>
             <button className="next" onClick={completeCurrentQueue}>Next Queue</button>
@@ -211,4 +271,4 @@ function Window1() {
   );
 }
 
-export default Window1;
+export default Window2;

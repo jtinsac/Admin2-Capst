@@ -34,6 +34,9 @@ function LogAdmin2() {
         }
 
         if (isValid) {
+          // Store the logged-in Username in localStorage
+          localStorage.setItem('loggedInUsername', username);
+
           const loginHistoryRef = ref(database, 'Login_History');
           const now = new Date();
 

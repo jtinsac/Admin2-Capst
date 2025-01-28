@@ -1,4 +1,4 @@
-import Sidebar from "../components/sidebar"
+import Sidebar from "../components/sidebarAd2"
 import regUserData from "../regUserData.json"
 import {
   createColumnHelper,

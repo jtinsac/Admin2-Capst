@@ -1,0 +1,191 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Nobile:ital,wght@0,400;0,500;0,700;1,400;1,500;1,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Nobile:ital,wght@0,400;0,500;0,700;1,400;1,500;1,700&family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap');
+
+.win1-container{
+    height:97.8vh;
+    background-color: #fbfbfb;
+    width: 85%;
+    margin: 9px;
+    border: 1px solid #A39E9E;
+    border-radius: 10px;
+}
+
+.win-headz{
+    background-color: #4f61bf;
+    padding: 20px 40px;
+    border: 2px solid black;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.win-title{
+    font-family:'Noto sans', sans-serif ;
+    font-size: 2rem;
+    color: white;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+}
+
+.user-container{
+    border-radius: 12px;
+    color: #1C2E8B;
+    font-weight: 800;
+    padding: 10px 200px;
+}
+
+.userInfo-card{
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    background-color: whitesmoke;
+    padding: 2.5rem 65px;
+    border: 2px solid #3a4eb1;
+    border-radius: 12px;
+    font-family:'inter',sans-serif;
+    font-weight:lighter;
+    font-size: 14px; 
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: 2px 2px 2px rgb(192, 189, 189);
+}
+
+.user-Info{
+    display: flex;
+    gap: 2.5rem;
+    align-items: center;
+    font-size: 15px;
+}
+
+.uid{
+    font-family: 'Noto sans', sans-serif;
+    font-size: 20px;
+    min-width: 100px; 
+    font-weight: 600;
+    text-align: right;    
+}
+
+.userInfo-value{
+    font-size: 21px;
+    font-family: 'Noto sans', sans-serif;
+    font-weight: 700;
+    color: black;
+    text-align: left;
+}
+
+.queue-container{
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+}
+
+.queue-card{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 2px solid #3a4eb1;
+    background-color:whitesmoke;
+    border-radius: 12px;
+    padding: 3rem 10rem;
+    box-shadow: 2px 2px 2px rgb(192, 189, 189);
+}
+
+.current-queue{
+    color: #1C2E8B;
+    font-family: 'Noto sans', sans-serif;
+    font-size: 2rem;
+    font-weight: 400;
+}
+
+.q-num{
+    font-family: 'inter',sans-serif;
+    font-weight: 600;
+    color: black;
+    font-size: 4rem;
+    margin-top: 10px;
+}
+
+.qBtn-container{
+   display: flex;
+   gap: 2rem;
+   justify-content:center ;
+   flex-direction: column;
+ 
+}
+
+.cancel, .next{
+    border-radius: 6px;
+    font-size: 18px;
+    font-family: 'nobile',sans-serif;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.cancel{
+    padding:16px 35px;
+    border: 1px solid red;
+    color: red;
+    font-weight: 500;
+    box-shadow: 2px 2px 2px rgb(205, 197, 197);
+}
+
+.cancel:hover{
+    background-color: rgb(246, 246, 246);
+}
+
+.next{
+    padding: 16px 50px;
+    border: 2px solid #1C2E8B;
+    color: #1C2E8B;
+    font-weight: 500;
+    box-shadow: 2px 2px 2px rgb(205, 197, 197);
+}
+
+.next:hover{
+    background-color: green;
+    color:white;
+}
+
+
+
+
+@media only screen and (max-width: 1145px) {
+    .win1-container{
+        width: 90%;
+    }
+     
+  }
+  
+  
+  @media only screen and (max-width: 1024px) {
+ 
+  
+  }
+
+    @media only screen and (max-width: 768px) {
+      .title2 {
+     display: none;
+      }
+  
+      .title3{
+        display: flex;
+        align-items: center;
+        padding: 15px;
+        font-family: 'inter',sans-serif;
+        font-style: italic;
+        font-weight: 180;
+        font-size: 2rem;
+        color: #1C2E8B;
+         margin-bottom: 1rem;
+      }
+  }
+  
+  
+
+
+
+
+
+
