@@ -217,9 +217,9 @@ function Window2() {
       <div className="win1-container">
         <div className="win-headz">
           <h2 className="win-title">FINANCE WINDOW 2</h2>
-          <button className="disable" onClick={handleToggleStatus}>
+          {/* <button className="disable" onClick={handleToggleStatus}>
             {window2Status === "Active" ? "Disable" : "Enable"}
-          </button>
+          </button> */}
         </div>
 
         <div className="user-container">
@@ -244,13 +244,9 @@ function Window2() {
               <h3 className="uid">Purpose:</h3>
               <span className="userInfo-value">{currentQueue?.Queue_Purpose || "N/A"}</span>
             </div>
-            <div className="user-Info">
-              <h3 className="uid">Completed Time:</h3>
-              <span className="userInfo-value">
-                {currentQueue?.CompletedTime ? currentQueue.CompletedTime : "N/A"}
-              </span>
+
               
-            </div>
+        
           </div>
         </div>
         <div className="queue-container">
@@ -262,7 +258,7 @@ function Window2() {
           </div>
           <div className="qBtn-container">
             <button className="cancel" onClick={cancelCurrentQueue}>Cancel</button>
-            <button className="recall">Recall</button>
+
             <button className="next" onClick={completeCurrentQueue}>Next Queue</button>
           </div>
         </div>
